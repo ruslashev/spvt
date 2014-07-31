@@ -1,9 +1,6 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
-#include "../editor.hpp"
-#include "basedrawablewidget.hpp"
-
 #include <vector>
 #include <string>
 #include <memory>
@@ -11,18 +8,15 @@
 
 class Renderer
 {
-	Editor *ep;
 	SDL_Window *window;
 	SDL_GLContext ctxt;
 	SDL_Event event;
-	std::vector<std::unique_ptr<BaseDrawableWidget>> widgets;
 
-	void UpdateTitle();
 public:
-	void Create(Editor *nep);
+	void Create();
 	~Renderer();
 
-	void Update();
+	void Draw();
 	char getch();
 };
 

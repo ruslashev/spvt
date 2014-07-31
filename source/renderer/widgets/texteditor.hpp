@@ -1,10 +1,9 @@
 #ifndef TEXTEDITOR_HPP
 #define TEXTEDITOR_HPP
 
-#include "../basedrawablewidget.hpp"
 #include "../textdrawer.hpp"
 
-class TextEditor : public BaseDrawableWidget
+class TextEditor
 {
 	TextDrawer td;
 	void RenderFile();

@@ -21,7 +21,7 @@ void Renderer::Create(Editor *nep)
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,   8);
 
 	// Create window
-	window = SDL_CreateWindow("Supvime is loading..",
+	window = SDL_CreateWindow("Spvt",
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 			800, 600,
 			SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
@@ -32,21 +32,9 @@ void Renderer::Create(Editor *nep)
 	assertf(ctxt != NULL, "Failed to create OpenGL rendering context: %s", SDL_GetError());
 	if (SDL_GL_SetSwapInterval(1) < 0)
 		printf("Warning: Unable to set VSync: %s\n", SDL_GetError());
-
-	widgets.push_back(std::unique_ptr<TextEditor>(new TextEditor("symlink-to-font")));
-	widgets.push_back(std::unique_ptr<StatusBar>(new StatusBar("symlink-to-font")));
-	for (auto &it : widgets)
-		it->ep = ep;
 }
 
-void Renderer::UpdateTitle()
-{
-	char titleBuf[128];
-	snprintf(titleBuf, 128, "%s <modified?> - Supvime", ep->fp->filename.c_str());
-	SDL_SetWindowTitle(window, titleBuf);
-}
-
-void Renderer::Update()
+void Renderer::Draw()
 {
 	glViewport(0, 0, 800, 600);
 
@@ -57,13 +45,7 @@ void Renderer::Update()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	for (auto &w : widgets) {
-		w->Draw();
-	}
-
 	SDL_GL_SwapWindow(window);
-
-	UpdateTitle();
 }
 
 char Renderer::getch()

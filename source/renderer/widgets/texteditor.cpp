@@ -12,9 +12,6 @@ void TextEditor::Draw()
 	td.setTextBackground(255, 255, 255);
 
 	RenderFile();
-
-	for (size_t i = 0; i < ep->lines.size(); i++)
-		ep->lines.at(i).dirty = false;
 }
 
 void TextEditor::RenderFile()

@@ -1,7 +1,7 @@
 CXX = g++
 
 OBJS = obj/main.o obj/errors.o obj/glutils.o obj/renderer/renderer.o \
-	obj/renderer/textdrawer.o obj/renderer/widgets/texteditor.o
+	obj/renderer/textdrawer.o
 
 EXECNAME = spvt
 
@@ -17,7 +17,6 @@ obj/%.o: source/%.cpp
 objdir:
 	mkdir -p obj
 	mkdir -p obj/renderer
-	mkdir -p obj/renderer/widgets
 
 clean:
 	-rm -f $(OBJS) $(EXECNAME)

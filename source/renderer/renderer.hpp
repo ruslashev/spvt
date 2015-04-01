@@ -7,20 +7,21 @@
 #include <SDL2/SDL.h>
 
 #include "../errors.hpp"
-#include "widgets/texteditor.hpp"
+#include "textdrawer.hpp"
 
 class Renderer
 {
-	SDL_Window *window;
-	SDL_GLContext ctxt;
+	SDL_Window *_sdl_window;
+	SDL_GLContext _glcontext;
 	SDL_Event event;
 
-	std::unique_ptr<TextEditor> ted;
+	std::unique_ptr<TextDrawer> _textDrawer_ptr;
 public:
 	void Create();
 	~Renderer();
 
 	void Draw();
+	void RenderStrings();
 	char getch();
 };
 

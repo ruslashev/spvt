@@ -1,6 +1,4 @@
-# SPVT
+# spvt
 
-SPVT - terminal emulator, based on code of [Supvime](https://github.com/ruslashev/supvime)
-
-Currently doesn't even build.
+spvt is (going to be) a terminal emulator based on code of [supvime](https://github.com/ruslashev/supvime)
 

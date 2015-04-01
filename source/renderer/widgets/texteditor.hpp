@@ -1,6 +1,9 @@
 #ifndef TEXTEDITOR_HPP
 #define TEXTEDITOR_HPP
 
+#include <vector>
+#include <string>
+
 #include "../textdrawer.hpp"
 
 class TextEditor

@@ -1,10 +1,10 @@
 #include "textdrawer.hpp"
-#include "../glutils.hpp"
-#include "../errors.hpp"
 
 TextDrawer::TextDrawer(const char *fontPath)
 	: sx(2.f/800), sy(2.f/600), lineSpacing(1.35f)
 {
+	puts("TextDrawer constructor");
+
 	int errCode = FT_Init_FreeType(&ftLib);
 	assertf(errCode == 0, "Failed to initialize FreeType");
 
@@ -17,10 +17,11 @@ TextDrawer::TextDrawer(const char *fontPath)
 
 	InitGL();
 
-	cacher.face = mainFace;
-	cacher.ftLib = ftLib;
-	cacher.ted = this;
-	cacher.Precache(14);
+	cacher = new TextCacher;
+	cacher->face = mainFace;
+	cacher->ftLib = ftLib;
+	cacher->td = this;
+	cacher->Precache(14);
 
 	setGlobalTransformation(0, 0);
 }
@@ -110,14 +111,14 @@ void TextDrawer::RenderString(const std::string str, float &dx, const float dy)
 
 void TextDrawer::RenderChar(const uint32_t ch, float &dx, const float dy)
 {
-	const glyph glyph = cacher.Lookup(ch, 14);
+	const glyph glyph = cacher->Lookup(ch, 14);
 	const float xadv = glyph.xAdvance*sx;
 	GLfloat transformation[2] = { dx, dy };
 
 	// -------------------- background -----
 	glUseProgram(bg_shaderProgram);
 
-	glBindBuffer(GL_ARRAY_BUFFER, cacher.bg_cellVertCoordsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, cacher->bg_cellVertCoordsVBO);
 	glEnableVertexAttribArray(bg_vertCoordAttribute);
 	glVertexAttribPointer(bg_vertCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -134,7 +135,7 @@ void TextDrawer::RenderChar(const uint32_t ch, float &dx, const float dy)
 	glEnableVertexAttribArray(fg_vertCoordAttribute);
 	glVertexAttribPointer(fg_vertCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, cacher.fg_texCoordsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, cacher->fg_texCoordsVBO);
 	glEnableVertexAttribArray(fg_textureCoordAttribute);
 	glVertexAttribPointer(fg_textureCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindTexture(GL_TEXTURE_2D, glyph.textureID);
@@ -182,6 +183,8 @@ void TextDrawer::setTextSize(unsigned int size)
 
 TextDrawer::~TextDrawer()
 {
+	puts("TextDrawer destructor");
+
 	glDeleteProgram(fg_shaderProgram);
 	glDeleteShader(fg_vertShader);
 	glDeleteShader(fg_fragShader);
@@ -192,11 +195,15 @@ TextDrawer::~TextDrawer()
 
 	FT_Done_Face(mainFace);
 	FT_Done_FreeType(ftLib);
+
+	delete cacher;
 }
 
 void TextCacher::Precache(unsigned int size)
 {
-	ted->setTextSize(size);
+	puts("precache");
+
+	td->setTextSize(size);
 	for (int i = 0; i < 256; i++)
 		Lookup(i, size);
 
@@ -212,8 +219,8 @@ void TextCacher::Precache(unsigned int size)
 
 	const int errCode = FT_Load_Char(face, ' ', FT_LOAD_RENDER);
 	assertf(errCode == 0, "Failed to render space character");
-	const float xadv = (face->glyph->advance.x >> 6)*ted->sx;
-	const float height = ted->fontHeight*ted->lineSpacing*ted->sy;
+	const float xadv = (face->glyph->advance.x >> 6)*td->sx;
+	const float height = td->fontHeight*td->lineSpacing*td->sy;
 	GLfloat bgCellVertCoords[4][2] = {
 		{ 0,      0 },
 		{ 0+xadv, 0 },
@@ -239,10 +246,10 @@ glyph TextCacher::Lookup(uint32_t ch, unsigned int size)
 		const int errCode = FT_Load_Char(face, ch, FT_LOAD_RENDER);
 		assertf(errCode == 0, "Failed to render char '%c'", ch);
 
-		const float x2 = g->bitmap_left*ted->sx;
-		const float y2 = g->bitmap_top*ted->sy - ted->fontHeight*ted->sy;
-		const float w  = g->bitmap.width*ted->sx;
-		const float h  = g->bitmap.rows*ted->sy;
+		const float x2 = g->bitmap_left*td->sx;
+		const float y2 = g->bitmap_top*td->sy - td->fontHeight*td->sy;
+		const float w  = g->bitmap.width*td->sx;
+		const float h  = g->bitmap.rows*td->sy;
 		GLfloat fgVertCoords[4][2] = {
 			{ x2,   y2   },
 			{ x2+w, y2   },
@@ -283,6 +290,8 @@ glyph TextCacher::Lookup(uint32_t ch, unsigned int size)
 
 TextCacher::~TextCacher()
 {
+	puts("textcacher destructor");
+
 	for (auto it = normalGlyphs.begin(); it != normalGlyphs.end(); ++it) {
 		glDeleteBuffers(1, &it->second.fg_glyphVertCoordsVBO);
 		glDeleteTextures(1, &it->second.textureID);

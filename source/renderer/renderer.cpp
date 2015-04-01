@@ -1,12 +1,7 @@
 #include "renderer.hpp"
-#include "../errors.hpp"
-#include "widgets/texteditor.hpp"
-#include "widgets/statusbar.hpp"
 
-void Renderer::Create(Editor *nep)
+void Renderer::Create()
 {
-	ep = nep;
-
 	// Initialize SDL
 	int errCode = SDL_Init(SDL_INIT_EVERYTHING) < 0;
 	assertf(errCode >= 0, "Failed to initialize SDL: %s", SDL_GetError());
@@ -21,7 +16,7 @@ void Renderer::Create(Editor *nep)
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,   8);
 
 	// Create window
-	window = SDL_CreateWindow("Spvt",
+	window = SDL_CreateWindow("spvt",
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 			800, 600,
 			SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
@@ -32,6 +27,8 @@ void Renderer::Create(Editor *nep)
 	assertf(ctxt != NULL, "Failed to create OpenGL rendering context: %s", SDL_GetError());
 	if (SDL_GL_SetSwapInterval(1) < 0)
 		printf("Warning: Unable to set VSync: %s\n", SDL_GetError());
+
+	ted = std::unique_ptr<TextEditor>(new TextEditor("symlink-to-font"));
 }
 
 void Renderer::Draw()
@@ -44,6 +41,8 @@ void Renderer::Draw()
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	ted.get()->Draw();
 
 	SDL_GL_SwapWindow(window);
 }

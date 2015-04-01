@@ -1,8 +1,11 @@
 #ifndef TEXTDRAWER_HPP
 #define TEXTDRAWER_HPP
 
-#include <map>
+#include "../glutils.hpp"
+#include "../errors.hpp"
 
+#include <cstdio>
+#include <map>
 #include <GL/glew.h>
 #include <freetype2/ft2build.h>
 #include FT_FREETYPE_H
@@ -10,7 +13,8 @@
 struct glyph {
 	GLuint fg_glyphVertCoordsVBO, textureID;
 	long xAdvance;
-	int left, top, width, height;
+	int left, top;
+	unsigned int width, height;
 };
 struct glyphKey {
 	uint32_t ch;
@@ -28,7 +32,7 @@ class TextCacher
 public:
 	FT_Face face;
 	FT_Library ftLib;
-	TextDrawer *ted;
+	TextDrawer *td;
 
 	GLuint fg_texCoordsVBO, bg_cellVertCoordsVBO;
 
@@ -41,7 +45,7 @@ class TextDrawer
 {
 	FT_Library ftLib;
 	FT_Face mainFace;
-	TextCacher cacher;
+	TextCacher *cacher;
 
 	GLint fg_textureUnif, fg_FGcolorUnif, fg_transfUnif, fg_gtransfUnif;
 	GLint fg_vertCoordAttribute, fg_textureCoordAttribute;

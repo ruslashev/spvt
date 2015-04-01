@@ -14,7 +14,7 @@ int main()
 
 	try {
 		while (1) {
-			rend.Update();
+			rend.Draw();
 			rend.getch();
 		}
 	} catch (std::exception &e) {

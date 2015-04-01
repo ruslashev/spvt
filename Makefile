@@ -1,11 +1,7 @@
-CXX = clang++
+CXX = g++
 
-OBJS = $(EDITOROBJS) $(FILEOBJS) $(RENDOBJS) $(MISCOBJS) obj/main.o
-EDITOROBJS = obj/editor.o
-FILEOBJS = obj/file.o
-RENDOBJS = obj/renderer/renderer.o obj/renderer/textdrawer.o obj/renderer/mesh.o $(REND_WIDGOBJS)
-REND_WIDGOBJS = obj/renderer/widgets/texteditor.o obj/renderer/widgets/statusbar.o
-MISCOBJS = obj/errors.o obj/glutils.o
+OBJS = obj/main.o obj/errors.o obj/glutils.o obj/renderer/renderer.o \
+	obj/renderer/textdrawer.o obj/renderer/widgets/texteditor.o
 
 EXECNAME = spvt
 

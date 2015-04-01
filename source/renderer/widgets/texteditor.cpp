@@ -1,5 +1,4 @@
 #include "texteditor.hpp"
-#include "../textdrawer.hpp"
 
 TextEditor::TextEditor(const char *fontPath) : td(fontPath)
 {
@@ -18,19 +17,18 @@ void TextEditor::RenderFile()
 {
 	const float cellHeight = (int)(td.fontHeight*td.lineSpacing)*td.sy;
 
-	for (size_t l = 0; l < ep->lines.size(); l++) {
+	std::vector<std::string> lines;
+	lines.push_back("AKLJAE:LJKG");
+	lines.push_back("yeh");
+	lines.push_back("wut");
+
+	for (size_t l = 0; l < lines.size(); l++) {
 		float dx = -1;
 		const float dy = 1 - l*cellHeight;
-		const std::string srcLine = ep->lines.at(l).str;
+		const std::string srcLine = lines.at(l);
 
 		int cx = 0;
 		for (size_t c = 0; c < srcLine.length(); c++, cx++) {
-			// TODO
-			if (l == ep->curs.y && c == ep->curs.x)
-				td.setTextBackground(100, 100, 100);
-			else
-				td.setTextBackground(255, 255, 255);
-
 			if (srcLine[c] != '\t')
 				td.RenderChar(srcLine[c], dx, dy);
 			else {

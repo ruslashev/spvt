@@ -184,8 +184,6 @@ void TextDrawer::setTextSize(unsigned int size)
 
 TextDrawer::~TextDrawer()
 {
-	puts("TextDrawer destructor");
-
 	glDeleteProgram(fg_shaderProgram);
 	glDeleteShader(fg_vertShader);
 	glDeleteShader(fg_fragShader);
@@ -202,8 +200,6 @@ TextDrawer::~TextDrawer()
 
 void TextCacher::Precache(unsigned int size)
 {
-	puts("precache");
-
 	td->setTextSize(size);
 	for (int i = 0; i < 256; i++)
 		Lookup(i, size);
@@ -291,8 +287,6 @@ glyph TextCacher::Lookup(uint32_t ch, unsigned int size)
 
 TextCacher::~TextCacher()
 {
-	puts("textcacher destructor");
-
 	for (auto it = normalGlyphs.begin(); it != normalGlyphs.end(); ++it) {
 		glDeleteBuffers(1, &it->second.fg_glyphVertCoordsVBO);
 		glDeleteTextures(1, &it->second.textureID);

@@ -6,8 +6,9 @@
 #include <memory>
 #include <SDL2/SDL.h>
 
-#include "../errors.hpp"
 #include "textdrawer.hpp"
+#include "../charmatrix.hpp"
+#include "../errors.hpp"
 
 class Renderer
 {
@@ -15,10 +16,15 @@ class Renderer
 	SDL_GLContext _glcontext;
 
 	std::unique_ptr<TextDrawer> _textDrawer_ptr;
-	char handleEvents();
+	CharMatrix *_charMatrix_ptr;
+
+	void init();
+	void handleEvents();
 	void renderStrings();
 public:
-	void Create();
+	bool quit;
+
+	Renderer(CharMatrix *ncharMatrix_ptr);
 	~Renderer();
 
 	void UpdateAndDraw();

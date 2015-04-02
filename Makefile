@@ -1,7 +1,7 @@
 CXX = g++
 
 OBJS = obj/main.o obj/errors.o obj/glutils.o obj/renderer/renderer.o \
-	obj/renderer/textdrawer.o
+	obj/renderer/textdrawer.o obj/charmatrix.o
 
 EXECNAME = spvt
 

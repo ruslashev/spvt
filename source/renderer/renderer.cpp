@@ -1,6 +1,17 @@
 #include "renderer.hpp"
 
-void Renderer::Create()
+Renderer::Renderer(CharMatrix *ncharMatrix_ptr)
+{
+	init();
+
+	quit = false;
+
+	_textDrawer_ptr =
+		std::unique_ptr<TextDrawer>(new TextDrawer("symlink-to-font"));
+	_charMatrix_ptr = ncharMatrix_ptr;
+}
+
+void Renderer::init()
 {
 	assertf(SDL_Init(SDL_INIT_EVERYTHING) >= 0,
 			"Failed to initialize SDL: %s", SDL_GetError());
@@ -17,23 +28,21 @@ void Renderer::Create()
 	_glcontext = SDL_GL_CreateContext(_sdl_window);
 	assertf(_glcontext != NULL,
 			"Failed to create OpenGL rendering context: %s", SDL_GetError());
-
-	_textDrawer_ptr =
-		std::unique_ptr<TextDrawer>(new TextDrawer("symlink-to-font"));
 }
 
 void Renderer::UpdateAndDraw()
 {
+	handleEvents();
+
 	glViewport(0, 0, 800, 600);
 
-	const float grayShade = 0.075f;
-	glClearColor(grayShade, grayShade, grayShade, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	RenderStrings();
+	renderStrings();
 
 	SDL_GL_SwapWindow(_sdl_window);
 }
@@ -79,17 +88,17 @@ void Renderer::renderStrings()
 	}
 }
 
-char Renderer::handleEvents()
+void Renderer::handleEvents()
 {
 	SDL_StartTextInput();
 	SDL_Event event;
 	if (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT)
-			_quit = true;
+			quit = true;
 		if (event.type == SDL_KEYUP &&
 				event.key.keysym.sym == SDLK_ESCAPE)
-			_quit = true;
-		if (_event.type == SDL_WINDOWEVENT_RESIZED)
+			quit = true;
+		if (event.type == SDL_WINDOWEVENT_RESIZED)
 			printf("window resize to %dx%d\n",
 					event.window.data1,
 					event.window.data2);

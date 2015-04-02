@@ -8,8 +8,7 @@ int main()
 	try {
 		rend.Create();
 		while (1) {
-			rend.Draw();
-			rend.getch();
+			rend.UpdateAndDraw();
 		}
 	} catch (std::exception &e) {
 		fprintf(stderr, "\x1b[31m" "ERROR" "\x1b[0m" " %s", e.what());

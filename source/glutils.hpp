@@ -3,8 +3,6 @@
 
 #include <GL/glew.h>
 
-#define GLSL(src) "#version 120\n" #src
-
 GLuint CreateShader(GLenum type, const char *src);
 GLuint CreateShaderProgram(GLuint vs, GLuint fs);
 GLint BindUniform(GLuint shaderProgramP, const char *name);

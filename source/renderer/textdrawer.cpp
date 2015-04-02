@@ -3,16 +3,14 @@
 TextDrawer::TextDrawer(const char *fontPath)
 	: sx(2.f/800), sy(2.f/600), lineSpacing(1.35f)
 {
-	puts("TextDrawer constructor");
+	int err = FT_Init_FreeType(&ftLib);
+	assertf(err == 0, "Failed to initialize FreeType");
 
-	int errCode = FT_Init_FreeType(&ftLib);
-	assertf(errCode == 0, "Failed to initialize FreeType");
-
-	errCode = FT_New_Face(ftLib, fontPath, 0, &mainFace);
-	assertf(errCode == 0, "Failed to create a new face for font \"%s\"", fontPath);
+	err = FT_New_Face(ftLib, fontPath, 0, &mainFace);
+	assertf(err == 0, "Failed to create a new face for font \"%s\"", fontPath);
 
 	if (!FT_IS_FIXED_WIDTH(mainFace))
-		printf("Warning: Font face \"%s %s\" (%s) is not fixed width!\n",
+		printf("Warning: Font face \"%s %s\" (%s) is not fixed width\n",
 				mainFace->family_name, mainFace->style_name, fontPath);
 
 	InitGL();
@@ -31,6 +29,8 @@ void TextDrawer::InitGL()
 	GLenum err = glewInit();
 	assertf(err == GLEW_OK, "Failed to initialize GLEW: %s", glewGetErrorString(err));
 	assertf(GLEW_VERSION_2_1, "Your graphics card's OpenGL version is less than 2.1.");
+
+#define GLSL(src) "#version 120\n" #src
 
 	const char *ForegroundVertShaderSrc = GLSL(
 		attribute vec2 inVertCoord;
@@ -74,6 +74,7 @@ void TextDrawer::InitGL()
 			gl_FragColor = vec4(bg, 1);
 		}
 	);
+#undef GLSL
 
 	fg_vertShader = CreateShader(GL_VERTEX_SHADER, ForegroundVertShaderSrc);
 	fg_fragShader = CreateShader(GL_FRAGMENT_SHADER, ForegroundFragShaderSrc);

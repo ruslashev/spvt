@@ -7,12 +7,6 @@ void Renderer::Create()
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   24);
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,    8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,   8);
 
 	_sdl_window = SDL_CreateWindow("spvt",
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -24,11 +18,11 @@ void Renderer::Create()
 	assertf(_glcontext != NULL,
 			"Failed to create OpenGL rendering context: %s", SDL_GetError());
 
-	_textDrawer_ptr = std::unique_ptr<TextDrawer>(
-			new TextDrawer("symlink-to-font"));
+	_textDrawer_ptr =
+		std::unique_ptr<TextDrawer>(new TextDrawer("symlink-to-font"));
 }
 
-void Renderer::Draw()
+void Renderer::UpdateAndDraw()
 {
 	glViewport(0, 0, 800, 600);
 
@@ -44,7 +38,7 @@ void Renderer::Draw()
 	SDL_GL_SwapWindow(_sdl_window);
 }
 
-void Renderer::RenderStrings()
+void Renderer::renderStrings()
 {
 	TextDrawer *td = _textDrawer_ptr.get();
 
@@ -85,23 +79,20 @@ void Renderer::RenderStrings()
 	}
 }
 
-char Renderer::getch()
+char Renderer::handleEvents()
 {
 	SDL_StartTextInput();
-	while (1) {
-		if (SDL_PollEvent(&event)) {
-			if (event.type == SDL_TEXTINPUT) {
-				return event.text.text[0];
-			} else if (event.type == SDL_KEYDOWN) {
-				switch (event.key.keysym.scancode) {
-					case SDL_SCANCODE_TAB:
-						return 9;
-						break;
-					default:
-						break;
-				}
-			}
-		}
+	SDL_Event event;
+	if (SDL_PollEvent(&event)) {
+		if (event.type == SDL_QUIT)
+			_quit = true;
+		if (event.type == SDL_KEYUP &&
+				event.key.keysym.sym == SDLK_ESCAPE)
+			_quit = true;
+		if (_event.type == SDL_WINDOWEVENT_RESIZED)
+			printf("window resize to %dx%d\n",
+					event.window.data1,
+					event.window.data2);
 	}
 }
 

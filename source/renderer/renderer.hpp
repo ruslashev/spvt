@@ -13,16 +13,15 @@ class Renderer
 {
 	SDL_Window *_sdl_window;
 	SDL_GLContext _glcontext;
-	SDL_Event event;
 
 	std::unique_ptr<TextDrawer> _textDrawer_ptr;
+	char handleEvents();
+	void renderStrings();
 public:
 	void Create();
 	~Renderer();
 
-	void Draw();
-	void RenderStrings();
-	char getch();
+	void UpdateAndDraw();
 };
 
 #endif

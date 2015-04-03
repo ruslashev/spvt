@@ -1,7 +1,7 @@
 #ifndef TEXTDRAWER_HPP
 #define TEXTDRAWER_HPP
 
-#include "../glutils.hpp"
+#include "glutils.hpp"
 #include "../errors.hpp"
 
 #include <cstdio>

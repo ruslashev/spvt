@@ -62,8 +62,8 @@ void Renderer::renderStrings()
 		line++;
 		float dx = -1;
 		const float dy = 1 - line*cellHeight;
-		for (auto &col : row) {
-			td->RenderChar(col.ch, dx, dy);
+		for (auto &column : row) {
+			td->RenderChar(column.ch, dx, dy);
 		}
 	}
 }

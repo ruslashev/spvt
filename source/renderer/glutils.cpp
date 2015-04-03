@@ -1,5 +1,4 @@
 #include "glutils.hpp"
-#include "errors.hpp"
 
 GLuint CreateShader(GLenum type, const char *src)
 {

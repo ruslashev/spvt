@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <SDL2/SDL.h>
+#include <GL/glew.h>
 
 #include "textdrawer.hpp"
 #include "../charmatrix.hpp"

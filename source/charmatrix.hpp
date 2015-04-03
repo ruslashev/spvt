@@ -14,9 +14,9 @@ class CharMatrix
 {
 public:
 	std::vector<std::vector<Cell>> matrix;
-	unsigned int rows, cols;
+	unsigned int rows, columns;
 
-	CharMatrix(unsigned int nrows, unsigned int ncols);
+	CharMatrix(unsigned int nrows, unsigned int ncolumns);
 };
 
 #endif

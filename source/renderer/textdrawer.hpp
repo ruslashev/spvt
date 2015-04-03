@@ -1,6 +1,7 @@
 #ifndef TEXTDRAWER_HPP
 #define TEXTDRAWER_HPP
 
+#include "textcacher.hpp"
 #include "glutils.hpp"
 #include "../errors.hpp"
 
@@ -10,36 +11,7 @@
 #include <freetype2/ft2build.h>
 #include FT_FREETYPE_H
 
-struct glyph {
-	GLuint fg_glyphVertCoordsVBO, textureID;
-	long xAdvance;
-	int left, top;
-	unsigned int width, height;
-};
-struct glyphKey {
-	uint32_t ch;
-	unsigned int size;
-	bool operator<(const glyphKey &other) const {
-		return ch < other.ch;
-	}
-};
-
-class TextDrawer;
-
-class TextCacher
-{
-	std::map<glyphKey, glyph> normalGlyphs;
-public:
-	FT_Face face;
-	FT_Library ftLib;
-	TextDrawer *td;
-
-	GLuint fg_texCoordsVBO, bg_cellVertCoordsVBO;
-
-	void Precache(unsigned int size);
-	glyph Lookup(uint32_t ch, unsigned int size);
-	~TextCacher();
-};
+class TextCacher;
 
 class TextDrawer
 {
@@ -57,7 +29,7 @@ class TextDrawer
 	GLuint bg_vertShader, bg_fragShader;
 	GLuint bg_shaderProgram;
 
-	void InitGL();
+	void initShaders();
 public:
 	TextDrawer(const char *fontPath);
 	~TextDrawer();
@@ -66,7 +38,6 @@ public:
 	const float sx, sy;
 	const float lineSpacing;
 
-	void RenderString(const std::string str, float &dx, const float dy);
 	void RenderChar(const uint32_t ch, float &dx, const float dy);
 	void setTextForeground(unsigned char r, unsigned char g, unsigned char b);
 	void setTextBackground(unsigned char r, unsigned char g, unsigned char b);

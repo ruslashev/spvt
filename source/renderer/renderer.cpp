@@ -28,6 +28,17 @@ void Renderer::init()
 	_glcontext = SDL_GL_CreateContext(_sdl_window);
 	assertf(_glcontext != NULL,
 			"Failed to create OpenGL rendering context: %s", SDL_GetError());
+
+	GLenum err = glewInit();
+	assertf(err == GLEW_OK,
+			"Failed to initialize GLEW: %s", glewGetErrorString(err));
+	assertf(GLEW_VERSION_2_1,
+			"Your graphics card's OpenGL version is less than 2.1.");
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Renderer::UpdateAndDraw()
@@ -38,9 +49,6 @@ void Renderer::UpdateAndDraw()
 
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	renderStrings();
 

@@ -6,9 +6,14 @@ Renderer::Renderer(CharMatrix *ncharMatrix_ptr)
 
 	quit = false;
 
-	_textDrawer_ptr =
-		std::unique_ptr<TextDrawer>(new TextDrawer("symlink-to-font"));
 	_charMatrix_ptr = ncharMatrix_ptr;
+
+	_textDrawer_ptr = std::unique_ptr<TextDrawer>(
+			new TextDrawer("symlink-to-font", 28));
+	_textCacher_ptr = std::unique_ptr<TextCacher>(
+			new TextCacher);
+	_textDrawer_ptr.get()->BindCacher(_textCacher_ptr.get(),
+			_charMatrix_ptr->rows, _charMatrix_ptr->columns);
 }
 
 void Renderer::init()
@@ -63,16 +68,16 @@ void Renderer::renderStrings()
 	td->setTextForeground(0, 0, 0);
 	td->setTextBackground(255, 255, 255);
 
-	const float cellHeight = (int)(td->fontHeight*td->lineSpacing)*td->sy;
+	const float cellHeight = (int)(td->fontSize*td->lineSpacing)*td->sy;
 
 	int line = 0;
 	for (auto &row : _charMatrix_ptr->matrix) {
-		line++;
 		float dx = -1;
 		const float dy = 1 - line*cellHeight;
 		for (auto &column : row) {
-			td->RenderChar(column.ch, dx, dy);
+			dx += td->RenderChar(column.ch, dx, dy);
 		}
+		line++;
 	}
 }
 

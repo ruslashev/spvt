@@ -31,18 +31,22 @@ class TextDrawer
 
 	void initShaders();
 public:
-	TextDrawer(const char *fontPath);
+	TextDrawer(const char *fontPath, unsigned int nsize);
 	~TextDrawer();
 
-	unsigned int fontHeight;
+	unsigned int windowWidth, windowHeight;
+
+	unsigned int fontSize;
 	const float sx, sy;
 	const float lineSpacing;
 
-	void RenderChar(const uint32_t ch, float &dx, const float dy);
+	float RenderChar(const uint32_t ch, const float x, const float y);
 	void setTextForeground(unsigned char r, unsigned char g, unsigned char b);
 	void setTextBackground(unsigned char r, unsigned char g, unsigned char b);
 	void setGlobalTransformation(float x, float y);
-	void setTextSize(unsigned int size);
+	void setTextSize(unsigned int nsize);
+
+	void BindCacher(TextCacher *ncacher, unsigned int rows, unsigned int columns);
 };
 
 #endif

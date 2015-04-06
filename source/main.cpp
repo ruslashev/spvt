@@ -5,7 +5,7 @@
 int main()
 {
 	try {
-		CharMatrix cm(10, 5);
+		CharMatrix cm(80, 25);
 		Renderer rend(&cm);
 
 		while (1) {

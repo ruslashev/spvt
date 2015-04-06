@@ -17,6 +17,7 @@ class Renderer
 	SDL_GLContext _glcontext;
 
 	std::unique_ptr<TextDrawer> _textDrawer_ptr;
+	std::unique_ptr<TextCacher> _textCacher_ptr;
 	CharMatrix *_charMatrix_ptr;
 
 	void init();

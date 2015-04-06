@@ -1,11 +1,25 @@
 #include "textcacher.hpp"
 
-void TextCacher::Precache(unsigned int size)
+void TextCacher::GetCellSizes()
 {
-	td->setTextSize(size);
-	for (int i = 0; i < 256; i++)
-		Lookup(i, size);
+	// todo replace with Lookup(' ')
+	const int err = FT_Load_Char(face, ' ', FT_LOAD_RENDER);
+	assertf(err == 0, "Failed to render space character");
+	cellWidth = face->glyph->advance.x >> 6;
+	cellHeight = td->fontSize*td->lineSpacing;
+}
 
+void TextCacher::Precache()
+{
+	for (int i = 0; i < 256; i++)
+		Lookup(i);
+
+	precacheTextureCoords();
+	precacheBackgroundCell();
+}
+
+void TextCacher::precacheTextureCoords()
+{
 	const GLfloat texCoords[4][2] = {
 		{ 0, 0 },
 		{ 1, 0 },
@@ -15,29 +29,27 @@ void TextCacher::Precache(unsigned int size)
 	glGenBuffers(1, &fg_texCoordsVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, fg_texCoordsVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
+}
 
-	const int errCode = FT_Load_Char(face, ' ', FT_LOAD_RENDER);
-	assertf(errCode == 0, "Failed to render space character");
-	const float xadv = (face->glyph->advance.x >> 6)*td->sx;
-	const float height = td->fontHeight*td->lineSpacing*td->sy;
+void TextCacher::precacheBackgroundCell()
+{
 	GLfloat bgCellVertCoords[4][2] = {
-		{ 0,      0 },
-		{ 0+xadv, 0 },
-		{ 0,      0-height },
-		{ 0+xadv, 0-height }
+		{ 0,                  0 },
+		{ 0+cellWidth*td->sx, 0 },
+		{ 0,                  0-cellHeight*td->sy },
+		{ 0+cellWidth*td->sx, 0-cellHeight*td->sy }
 	};
+
 	glGenBuffers(1, &bg_cellVertCoordsVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, bg_cellVertCoordsVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(bgCellVertCoords), bgCellVertCoords,
 			GL_STATIC_DRAW);
 }
 
-glyph TextCacher::Lookup(uint32_t ch, unsigned int size)
+glyph TextCacher::Lookup(uint32_t ch)
 {
-	const glyphKey key = { ch, size };
-
-	if (normalGlyphs.find(key) != normalGlyphs.end()) {
-		return normalGlyphs.at(key);
+	if (glyphMap.find(ch) != glyphMap.end()) {
+		return glyphMap.at(ch);
 	} else {
 		// doesn't exist and needs to be drawn and written
 		const int err = FT_Load_Char(face, ch, FT_LOAD_RENDER);
@@ -45,7 +57,7 @@ glyph TextCacher::Lookup(uint32_t ch, unsigned int size)
 
 		const FT_GlyphSlot g = face->glyph;
 		const float x2 = g->bitmap_left*td->sx;
-		const float y2 = g->bitmap_top*td->sy - td->fontHeight*td->sy;
+		const float y2 = g->bitmap_top*td->sy - td->fontSize*td->sy;
 		const float w  = g->bitmap.width*td->sx;
 		const float h  = g->bitmap.rows*td->sy;
 		GLfloat fgVertCoords[4][2] = {
@@ -80,7 +92,7 @@ glyph TextCacher::Lookup(uint32_t ch, unsigned int size)
 			g->bitmap.rows
 		};
 
-		normalGlyphs[key] = value;
+		glyphMap[ch] = value;
 
 		return value;
 	}
@@ -88,7 +100,7 @@ glyph TextCacher::Lookup(uint32_t ch, unsigned int size)
 
 TextCacher::~TextCacher()
 {
-	for (auto it = normalGlyphs.begin(); it != normalGlyphs.end(); ++it) {
+	for (auto it = glyphMap.begin(); it != glyphMap.end(); ++it) {
 		glDeleteBuffers(1, &it->second.fg_glyphVertCoordsVBO);
 		glDeleteTextures(1, &it->second.textureID);
 	}

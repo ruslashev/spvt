@@ -18,28 +18,26 @@ struct glyph {
 	unsigned int width, height;
 };
 
-struct glyphKey {
-	uint32_t ch;
-	unsigned int size;
-	bool operator<(const glyphKey &other) const {
-		return ch < other.ch;
-	}
-};
-
 class TextDrawer;
 
 class TextCacher
 {
-	std::map<glyphKey, glyph> normalGlyphs;
+	std::map<uint32_t, glyph> glyphMap;
+
+	void precacheTextureCoords();
+	void precacheBackgroundCell();
 public:
 	FT_Face face;
 	FT_Library ftLib;
 	TextDrawer *td;
 
+	float cellHeight, cellWidth;
+
 	GLuint fg_texCoordsVBO, bg_cellVertCoordsVBO;
 
-	void Precache(unsigned int size);
-	glyph Lookup(uint32_t ch, unsigned int size);
+	void GetCellSizes();
+	void Precache();
+	glyph Lookup(uint32_t ch);
 	~TextCacher();
 };
 

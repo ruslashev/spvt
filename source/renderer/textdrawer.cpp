@@ -1,7 +1,7 @@
 #include "textdrawer.hpp"
 
-TextDrawer::TextDrawer(const char *fontPath)
-	: sx(2.f/800), sy(2.f/600), lineSpacing(1.35f)
+TextDrawer::TextDrawer(const char *fontPath, unsigned int nfontSize)
+	: sx(1.f/800), sy(1.f/600), lineSpacing(1.35f)
 {
 	int err = FT_Init_FreeType(&ftLib);
 	assertf(err == 0, "Failed to initialize FreeType");
@@ -15,13 +15,24 @@ TextDrawer::TextDrawer(const char *fontPath)
 
 	initShaders();
 
-	cacher = new TextCacher;
+	setTextSize(nfontSize);
+
+	setGlobalTransformation(0, 0);
+}
+
+void TextDrawer::BindCacher(TextCacher *ncacher, unsigned int rows,
+		unsigned int columns)
+{
+	cacher = ncacher;
 	cacher->face = mainFace;
 	cacher->ftLib = ftLib;
 	cacher->td = this;
-	cacher->Precache(14);
 
-	setGlobalTransformation(0, 0);
+	cacher->GetCellSizes();
+	windowWidth = cacher->cellWidth*rows;
+	windowHeight = cacher->cellWidth*columns;
+
+	cacher->Precache();
 }
 
 void TextDrawer::initShaders()
@@ -95,11 +106,10 @@ void TextDrawer::initShaders()
 	bg_gtransfUnif = BindUniform(bg_shaderProgram, "globalTransformation");
 }
 
-void TextDrawer::RenderChar(const uint32_t ch, float &dx, const float dy)
+float TextDrawer::RenderChar(const uint32_t ch, const float x, const float y)
 {
-	const glyph glyph = cacher->Lookup(ch, 14);
-	const float xadv = glyph.xAdvance*sx;
-	GLfloat transformation[2] = { dx, dy };
+	const glyph glyph = cacher->Lookup(ch);
+	GLfloat transformation[2] = { x, y };
 
 	// -------------------- background -----
 	glUseProgram(bg_shaderProgram);
@@ -133,7 +143,7 @@ void TextDrawer::RenderChar(const uint32_t ch, float &dx, const float dy)
 	glDisableVertexAttribArray(fg_vertCoordAttribute);
 	glDisableVertexAttribArray(fg_textureCoordAttribute);
 
-	dx += xadv;
+	return glyph.xAdvance*sx;
 }
 
 void TextDrawer::setTextForeground(unsigned char r, unsigned char g, unsigned char b)
@@ -161,10 +171,10 @@ void TextDrawer::setGlobalTransformation(float x, float y)
 	glUniform2fv(bg_gtransfUnif, 1, transf);
 }
 
-void TextDrawer::setTextSize(unsigned int size)
+void TextDrawer::setTextSize(unsigned int nfontSize)
 {
-	fontHeight = size;
-	FT_Set_Pixel_Sizes(mainFace, size, size);
+	fontSize = nfontSize;
+	FT_Set_Pixel_Sizes(mainFace, fontSize, fontSize);
 }
 
 TextDrawer::~TextDrawer()
@@ -179,7 +189,5 @@ TextDrawer::~TextDrawer()
 
 	FT_Done_Face(mainFace);
 	FT_Done_FreeType(ftLib);
-
-	delete cacher;
 }
 

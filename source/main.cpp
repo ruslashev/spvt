@@ -6,7 +6,7 @@ int main()
 {
 	try {
 		CharMatrix cm(80, 25);
-		Renderer rend(&cm);
+		Renderer rend(28, &cm);
 
 		while (1) {
 			rend.UpdateAndDraw();

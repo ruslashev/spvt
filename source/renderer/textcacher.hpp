@@ -1,11 +1,12 @@
 #ifndef TEXTCACHER_HPP
 #define TEXTCACHER_HPP
 
-#include "textdrawer.hpp"
+class Renderer;
+
 #include "glutils.hpp"
+#include "renderer.hpp"
 #include "../errors.hpp"
 
-#include <cstdio>
 #include <map>
 #include <GL/glew.h>
 #include <freetype2/ft2build.h>
@@ -18,8 +19,6 @@ struct glyph {
 	unsigned int width, height;
 };
 
-class TextDrawer;
-
 class TextCacher
 {
 	std::map<uint32_t, glyph> glyphMap;
@@ -27,9 +26,9 @@ class TextCacher
 	void precacheTextureCoords();
 	void precacheBackgroundCell();
 public:
+	Renderer *renderer;
 	FT_Face face;
 	FT_Library ftLib;
-	TextDrawer *td;
 
 	float cellHeight, cellWidth;
 

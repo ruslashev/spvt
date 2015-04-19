@@ -2,11 +2,10 @@
 
 void TextCacher::GetCellSizes()
 {
-	// todo replace with Lookup(' ')
 	const int err = FT_Load_Char(face, ' ', FT_LOAD_RENDER);
 	assertf(err == 0, "Failed to render space character");
 	cellWidth = face->glyph->advance.x >> 6;
-	cellHeight = td->fontSize*td->lineSpacing;
+	cellHeight = renderer->fontSize*renderer->lineSpacing;
 }
 
 void TextCacher::Precache()
@@ -34,12 +33,11 @@ void TextCacher::precacheTextureCoords()
 void TextCacher::precacheBackgroundCell()
 {
 	GLfloat bgCellVertCoords[4][2] = {
-		{ 0,                  0 },
-		{ 0+cellWidth*td->sx, 0 },
-		{ 0,                  0-cellHeight*td->sy },
-		{ 0+cellWidth*td->sx, 0-cellHeight*td->sy }
+		{ 0,                        0 },
+		{ 0+cellWidth*renderer->sx, 0 },
+		{ 0,                        0-cellHeight*renderer->sy },
+		{ 0+cellWidth*renderer->sx, 0-cellHeight*renderer->sy }
 	};
-
 	glGenBuffers(1, &bg_cellVertCoordsVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, bg_cellVertCoordsVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(bgCellVertCoords), bgCellVertCoords,
@@ -55,11 +53,13 @@ glyph TextCacher::Lookup(uint32_t ch)
 		const int err = FT_Load_Char(face, ch, FT_LOAD_RENDER);
 		assertf(err == 0, "Failed to render char '%c' %d 0x%x", ch, ch, ch);
 
+		const float sx = renderer->sx;
+		const float sy = renderer->sy;
 		const FT_GlyphSlot g = face->glyph;
-		const float x2 = g->bitmap_left*td->sx;
-		const float y2 = g->bitmap_top*td->sy - td->fontSize*td->sy;
-		const float w  = g->bitmap.width*td->sx;
-		const float h  = g->bitmap.rows*td->sy;
+		const float x2 = g->bitmap_left*sx;
+		const float y2 = g->bitmap_top*sy - renderer->fontSize*sy;
+		const float w  = g->bitmap.width*sx;
+		const float h  = g->bitmap.rows*sy;
 		GLfloat fgVertCoords[4][2] = {
 			{ x2,   y2   },
 			{ x2+w, y2   },

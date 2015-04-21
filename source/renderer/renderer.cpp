@@ -25,7 +25,7 @@ Renderer::Renderer(unsigned int nfontSize, CharMatrix *ncharMatrix_ptr)
 	cacher->GetCellSizes();
 	windowWidth = cacher->cellWidth*_charMatrix_ptr->rows;
 	windowHeight = cacher->cellWidth*_charMatrix_ptr->columns;
-	cacher->Precache();
+	cacher->Construct();
 }
 
 void Renderer::init_SDL()

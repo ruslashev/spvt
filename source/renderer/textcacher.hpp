@@ -23,8 +23,8 @@ class TextCacher
 {
 	std::map<uint32_t, glyph> glyphMap;
 
-	void precacheTextureCoords();
-	void precacheBackgroundCell();
+	void createTextureCoords();
+	void createBackgroundCell();
 public:
 	Renderer *renderer;
 	FT_Face face;
@@ -34,8 +34,8 @@ public:
 
 	GLuint fg_texCoordsVBO, bg_cellVertCoordsVBO;
 
+	void Construct();
 	void GetCellSizes();
-	void Precache();
 	glyph Lookup(uint32_t ch);
 	~TextCacher();
 };

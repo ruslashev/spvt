@@ -1,23 +1,15 @@
 #include "textcacher.hpp"
 
-void TextCacher::GetCellSizes()
-{
-	const int err = FT_Load_Char(face, ' ', FT_LOAD_RENDER);
-	assertf(err == 0, "Failed to render space character");
-	cellWidth = face->glyph->advance.x >> 6;
-	cellHeight = renderer->fontSize*renderer->lineSpacing;
-}
-
-void TextCacher::Precache()
+void TextCacher::Construct()
 {
 	for (int i = 0; i < 256; i++)
 		Lookup(i);
 
-	precacheTextureCoords();
-	precacheBackgroundCell();
+	createTextureCoords();
+	createBackgroundCell();
 }
 
-void TextCacher::precacheTextureCoords()
+void TextCacher::createTextureCoords()
 {
 	const GLfloat texCoords[4][2] = {
 		{ 0, 0 },
@@ -30,7 +22,7 @@ void TextCacher::precacheTextureCoords()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
 }
 
-void TextCacher::precacheBackgroundCell()
+void TextCacher::createBackgroundCell()
 {
 	GLfloat bgCellVertCoords[4][2] = {
 		{ 0,                        0 },
@@ -42,6 +34,14 @@ void TextCacher::precacheBackgroundCell()
 	glBindBuffer(GL_ARRAY_BUFFER, bg_cellVertCoordsVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(bgCellVertCoords), bgCellVertCoords,
 			GL_STATIC_DRAW);
+}
+
+void TextCacher::GetCellSizes()
+{
+	const int err = FT_Load_Char(face, ' ', FT_LOAD_RENDER);
+	assertf(err == 0, "Failed to render space character");
+	cellWidth = face->glyph->advance.x >> 6;
+	cellHeight = renderer->fontSize*renderer->lineSpacing;
 }
 
 glyph TextCacher::Lookup(uint32_t ch)

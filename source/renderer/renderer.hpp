@@ -33,8 +33,11 @@ class Renderer
 	GLuint bg_vertShader, bg_fragShader;
 	GLuint bg_shaderProgram;
 
-	std::unique_ptr<TextCacher> _textCacher_ptr;
-	CharMatrix *_charMatrix_ptr;
+	std::unique_ptr<TextCacher> textCacher_ptr;
+	CharMatrix *charMatrix_ptr;
+
+	unsigned int windowWidth, windowHeight;
+	unsigned int cellWidth, cellHeight;
 
 	void init_SDL();
 	void init_OpenGL();
@@ -44,14 +47,13 @@ class Renderer
 	void handleEvents();
 	void renderStrings();
 
-	float RenderChar(const uint32_t ch, const float x, const float y);
+	void RenderChar(const uint32_t ch, const float x, const float y);
 	void setTextForeground(unsigned char r, unsigned char g, unsigned char b);
 	void setTextBackground(unsigned char r, unsigned char g, unsigned char b);
 	void setGlobalTransformation(float x, float y);
 	void setTextSize(unsigned int nfontSize);
 	void resizeWindow();
 public:
-	unsigned int windowWidth, windowHeight;
 	unsigned int fontSize;
 	float sx, sy;
 	float lineSpacing;

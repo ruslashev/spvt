@@ -12,7 +12,7 @@ class Renderer;
 #include <freetype2/ft2build.h>
 #include FT_FREETYPE_H
 
-struct glyph {
+struct Glyph {
 	GLuint fg_glyphVertCoordsVBO, textureID;
 	long xAdvance;
 	int left, top;
@@ -21,7 +21,7 @@ struct glyph {
 
 class TextCacher
 {
-	std::map<uint32_t, glyph> glyphMap;
+	std::map<uint32_t, Glyph> glyphMap;
 
 	void createTextureCoords();
 	void createBackgroundCell();
@@ -34,10 +34,10 @@ public:
 
 	GLuint fg_texCoordsVBO, bg_cellVertCoordsVBO;
 
+	void GetCellSizes();
 	void CreateSharedBuffers();
 	void Precache();
-	void GetCellSizes();
-	glyph Lookup(uint32_t ch);
+	Glyph Lookup(uint32_t ch);
 	~TextCacher();
 };
 

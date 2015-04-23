@@ -14,22 +14,20 @@ Renderer::Renderer(unsigned int nfontSize, CharMatrix *ncharMatrix_ptr)
 	setTextSize(nfontSize);
 	setGlobalTransformation(0, 0);
 
-	_charMatrix_ptr = ncharMatrix_ptr;
+	charMatrix_ptr = ncharMatrix_ptr;
 
-	_textCacher_ptr =
+	textCacher_ptr =
 		std::unique_ptr<TextCacher>(new TextCacher);
-	TextCacher *cacher = _textCacher_ptr.get();
-	cacher->face = mainFace;
-	cacher->ftLib = ftLib;
-	cacher->renderer = this;
-	cacher->GetCellSizes();
-	windowWidth = cacher->cellWidth*_charMatrix_ptr->rows;
-	windowHeight = cacher->cellHeight*_charMatrix_ptr->columns;
-	printf("%d %d\n", windowWidth, windowHeight);
-	sx = 1.f / windowWidth;
-	sy = 1.f / windowHeight;
-	cacher->CreateSharedBuffers();
-	cacher->Precache();
+	textCacher_ptr->face = mainFace;
+	textCacher_ptr->ftLib = ftLib;
+	textCacher_ptr->renderer = this;
+	textCacher_ptr->GetCellSizes();
+	windowWidth = textCacher_ptr->cellWidth*charMatrix_ptr->rows;
+	windowHeight = textCacher_ptr->cellHeight*charMatrix_ptr->columns;
+	sx = 2.f / windowWidth;
+	sy = 2.f / windowHeight;
+	textCacher_ptr->CreateSharedBuffers();
+	textCacher_ptr->Precache();
 	resizeWindow();
 }
 
@@ -170,14 +168,13 @@ void Renderer::renderStrings()
 	setTextForeground(0, 0, 0);
 	setTextBackground(255, 255, 255);
 
-	const float cellHeight = (int)(fontSize*lineSpacing)*sy;
-
 	int line = 0;
-	for (auto &row : _charMatrix_ptr->matrix) {
-		float dx = -1;
-		const float dy = 1 - line*cellHeight;
+	for (auto &row : charMatrix_ptr->matrix) {
+		float x = -1;
+		const float y = 1 - line*textCacher_ptr->cellHeight*sy;
 		for (auto &column : row) {
-			dx += RenderChar(column.ch, dx, dy);
+			RenderChar(column.ch, x, y);
+			x += textCacher_ptr->cellWidth*sx;
 		}
 		line++;
 	}
@@ -200,16 +197,15 @@ void Renderer::handleEvents()
 	}
 }
 
-float Renderer::RenderChar(const uint32_t ch, const float x, const float y)
+void Renderer::RenderChar(const uint32_t ch, const float x, const float y)
 {
-	TextCacher *cacher = _textCacher_ptr.get();
-	const glyph glyph = cacher->Lookup(ch);
+	const Glyph glyph = textCacher_ptr->Lookup(ch);
 	GLfloat transformation[2] = { x, y };
 
 	// -------------------- background -----
 	glUseProgram(bg_shaderProgram);
 
-	glBindBuffer(GL_ARRAY_BUFFER, cacher->bg_cellVertCoordsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, textCacher_ptr->bg_cellVertCoordsVBO);
 	glEnableVertexAttribArray(bg_vertCoordAttribute);
 	glVertexAttribPointer(bg_vertCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -226,7 +222,7 @@ float Renderer::RenderChar(const uint32_t ch, const float x, const float y)
 	glEnableVertexAttribArray(fg_vertCoordAttribute);
 	glVertexAttribPointer(fg_vertCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, cacher->fg_texCoordsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, textCacher_ptr->fg_texCoordsVBO);
 	glEnableVertexAttribArray(fg_textureCoordAttribute);
 	glVertexAttribPointer(fg_textureCoordAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindTexture(GL_TEXTURE_2D, glyph.textureID);
@@ -237,8 +233,6 @@ float Renderer::RenderChar(const uint32_t ch, const float x, const float y)
 
 	glDisableVertexAttribArray(fg_vertCoordAttribute);
 	glDisableVertexAttribArray(fg_textureCoordAttribute);
-
-	return glyph.xAdvance*sx;
 }
 
 void Renderer::setTextForeground(unsigned char r, unsigned char g,

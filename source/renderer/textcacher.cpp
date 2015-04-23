@@ -1,15 +1,17 @@
 #include "textcacher.hpp"
 
+void TextCacher::GetCellSizes()
+{
+	const int err = FT_Load_Char(face, ' ', FT_LOAD_RENDER);
+	assertf(err == 0, "Failed to render space character");
+	cellWidth = face->glyph->advance.x >> 6;
+	cellHeight = renderer->fontSize*renderer->lineSpacing;
+}
+
 void TextCacher::CreateSharedBuffers()
 {
 	createTextureCoords();
 	createBackgroundCell();
-}
-
-void TextCacher::Precache()
-{
-	for (int i = 0; i < 256; i++)
-		Lookup(i);
 }
 
 void TextCacher::createTextureCoords()
@@ -39,15 +41,13 @@ void TextCacher::createBackgroundCell()
 			GL_STATIC_DRAW);
 }
 
-void TextCacher::GetCellSizes()
+void TextCacher::Precache()
 {
-	const int err = FT_Load_Char(face, ' ', FT_LOAD_RENDER);
-	assertf(err == 0, "Failed to render space character");
-	cellWidth = face->glyph->advance.x >> 6;
-	cellHeight = renderer->fontSize*renderer->lineSpacing;
+	for (int i = 0; i < 256; i++)
+		Lookup(i);
 }
 
-glyph TextCacher::Lookup(uint32_t ch)
+Glyph TextCacher::Lookup(uint32_t ch)
 {
 	if (glyphMap.find(ch) != glyphMap.end()) {
 		return glyphMap.at(ch);
@@ -85,7 +85,7 @@ glyph TextCacher::Lookup(uint32_t ch)
 				g->bitmap.width, g->bitmap.rows, 0,
 				GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 
-		const glyph value = {
+		const Glyph value = {
 			fg_glyphVertCoordsVBO,
 			textureID,
 			g->advance.x >> 6,

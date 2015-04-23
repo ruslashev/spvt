@@ -97,11 +97,11 @@ void Renderer::init_shaders()
 	);
 	const char *ForegroundFragShaderSrc = GLSL(
 		varying vec2 outTextureCoord;
-		uniform sampler2D tex0;
-		uniform vec3 fg;
+		uniform sampler2D glyphTexture;
+		uniform vec3 fg_color;
 
 		void main() {
-			gl_FragColor = vec4(fg, texture2D(tex0, outTextureCoord).r);
+			gl_FragColor = vec4(fg_color, texture2D(glyphTexture, outTextureCoord).r);
 		}
 	);
 
@@ -117,10 +117,10 @@ void Renderer::init_shaders()
 		}
 	);
 	const char *BacgroundFragShaderSrc = GLSL(
-		uniform vec3 bg;
+		uniform vec3 bg_color;
 
 		void main() {
-			gl_FragColor = vec4(bg, 1);
+			gl_FragColor = vec4(bg_color, 1);
 		}
 	);
 #undef GLSL
@@ -132,8 +132,8 @@ void Renderer::init_shaders()
 	fg_vertCoordAttribute = BindAttribute(fg_shaderProgram, "inVertCoord");
 	fg_textureCoordAttribute = BindAttribute(fg_shaderProgram, "inTextureCoord");
 
-	fg_textureUnif = BindUniform(fg_shaderProgram, "tex0");
-	fg_FGcolorUnif = BindUniform(fg_shaderProgram, "fg");
+	fg_textureUnif = BindUniform(fg_shaderProgram, "glyphTexture");
+	fg_FGcolorUnif = BindUniform(fg_shaderProgram, "fg_color");
 	fg_transfUnif = BindUniform(fg_shaderProgram, "transformation");
 	fg_gtransfUnif = BindUniform(fg_shaderProgram, "globalTransformation");
 
@@ -144,7 +144,7 @@ void Renderer::init_shaders()
 
 	bg_vertCoordAttribute = BindAttribute(bg_shaderProgram, "inVertCoord");
 
-	bg_BGcolorUnif = BindUniform(bg_shaderProgram, "bg");
+	bg_BGcolorUnif = BindUniform(bg_shaderProgram, "bg_color");
 	bg_transfUnif = BindUniform(bg_shaderProgram, "transformation");
 	bg_gtransfUnif = BindUniform(bg_shaderProgram, "globalTransformation");
 }
@@ -182,7 +182,7 @@ void Renderer::renderStrings()
 
 void Renderer::handleEvents()
 {
-	SDL_StartTextInput();
+	// SDL_StartTextInput();
 	SDL_Event event;
 	if (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT)

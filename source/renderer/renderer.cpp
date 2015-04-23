@@ -1,31 +1,36 @@
 #include "renderer.hpp"
 
 Renderer::Renderer(unsigned int nfontSize, CharMatrix *ncharMatrix_ptr)
-: sx (1.f/800), sy (1.f/600), lineSpacing (1.35f)
 {
 	init_SDL();
 	init_OpenGL();
 	init_fonts("symlink-to-font");
 	init_shaders();
 
-	setTextSize(nfontSize);
-
-	setGlobalTransformation(0, 0);
+	lineSpacing = 1.35f;
 
 	quit = false;
 
+	setTextSize(nfontSize);
+	setGlobalTransformation(0, 0);
+
 	_charMatrix_ptr = ncharMatrix_ptr;
 
-	_textCacher_ptr = std::unique_ptr<TextCacher>(
-			new TextCacher);
+	_textCacher_ptr =
+		std::unique_ptr<TextCacher>(new TextCacher);
 	TextCacher *cacher = _textCacher_ptr.get();
 	cacher->face = mainFace;
 	cacher->ftLib = ftLib;
 	cacher->renderer = this;
 	cacher->GetCellSizes();
 	windowWidth = cacher->cellWidth*_charMatrix_ptr->rows;
-	windowHeight = cacher->cellWidth*_charMatrix_ptr->columns;
-	cacher->Construct();
+	windowHeight = cacher->cellHeight*_charMatrix_ptr->columns;
+	printf("%d %d\n", windowWidth, windowHeight);
+	sx = 1.f / windowWidth;
+	sy = 1.f / windowHeight;
+	cacher->CreateSharedBuffers();
+	cacher->Precache();
+	resizeWindow();
 }
 
 void Renderer::init_SDL()
@@ -38,7 +43,7 @@ void Renderer::init_SDL()
 
 	_sdl_window = SDL_CreateWindow("spvt",
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			800, 600,
+			100, 100,
 			SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	assertf(_sdl_window != NULL,
 			"Failed to open a window: %s", SDL_GetError());
@@ -150,7 +155,7 @@ void Renderer::UpdateAndDraw()
 {
 	handleEvents();
 
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, windowWidth, windowHeight);
 
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -254,7 +259,7 @@ void Renderer::setTextBackground(unsigned char r, unsigned char g,
 
 void Renderer::setGlobalTransformation(float x, float y)
 {
-	GLfloat transf[2] = { x, -y };
+	GLfloat transf[2] = { x, y };
 
 	glUseProgram(fg_shaderProgram);
 	glUniform2fv(fg_gtransfUnif, 1, transf);
@@ -267,6 +272,11 @@ void Renderer::setTextSize(unsigned int nfontSize)
 {
 	fontSize = nfontSize;
 	FT_Set_Pixel_Sizes(mainFace, fontSize, fontSize);
+}
+
+void Renderer::resizeWindow()
+{
+	SDL_SetWindowSize(_sdl_window, windowWidth, windowHeight);
 }
 
 Renderer::~Renderer()

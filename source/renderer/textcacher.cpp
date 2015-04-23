@@ -1,12 +1,15 @@
 #include "textcacher.hpp"
 
-void TextCacher::Construct()
+void TextCacher::CreateSharedBuffers()
+{
+	createTextureCoords();
+	createBackgroundCell();
+}
+
+void TextCacher::Precache()
 {
 	for (int i = 0; i < 256; i++)
 		Lookup(i);
-
-	createTextureCoords();
-	createBackgroundCell();
 }
 
 void TextCacher::createTextureCoords()

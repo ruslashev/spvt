@@ -1,16 +1,17 @@
-#include "renderer/renderer.hpp"
 #include "charmatrix.hpp"
+#include "renderer/renderer.hpp"
+
 #include <fstream>
 
 int main()
 {
 	try {
-		CharMatrix cm(80, 25);
-		Renderer rend(28, &cm);
+		CharMatrix charMatrix(80, 25);
+		Renderer renderer(14, &charMatrix);
 
 		while (1) {
-			rend.UpdateAndDraw();
-			if (rend.quit)
+			renderer.UpdateAndDraw();
+			if (renderer.quit)
 				break;
 		}
 	} catch (std::exception &e) {

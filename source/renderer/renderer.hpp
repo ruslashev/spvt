@@ -49,11 +49,12 @@ class Renderer
 	void setTextBackground(unsigned char r, unsigned char g, unsigned char b);
 	void setGlobalTransformation(float x, float y);
 	void setTextSize(unsigned int nfontSize);
+	void resizeWindow();
 public:
 	unsigned int windowWidth, windowHeight;
 	unsigned int fontSize;
-	const float sx, sy;
-	const float lineSpacing;
+	float sx, sy;
+	float lineSpacing;
 
 	bool quit;
 

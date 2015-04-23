@@ -34,7 +34,8 @@ public:
 
 	GLuint fg_texCoordsVBO, bg_cellVertCoordsVBO;
 
-	void Construct();
+	void CreateSharedBuffers();
+	void Precache();
 	void GetCellSizes();
 	glyph Lookup(uint32_t ch);
 	~TextCacher();
